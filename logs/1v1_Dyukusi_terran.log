@@ -1,0 +1,68 @@
+{
+    "gameModeName": "1v1",
+    "playerNames": [
+        "Dyukusi"
+    ],
+    "matchLogs": [
+        {
+            "unixTime": 1234567,
+            "mmr": 4567
+        },
+        {
+            "unixTime": 1234567,
+            "mmr": 4231
+        },
+        {
+            "unixTime": 1234567,
+            "mmr": 4643
+        },
+        {
+            "unixTime": 1234567,
+            "mmr": 4555
+        },
+        {
+            "unixTime": 1234567,
+            "mmr": 4567
+        },
+        {
+            "unixTime": 1234567,
+            "mmr": 4567
+        },
+        {
+            "unixTime": 1234567,
+            "mmr": 5340
+        },
+        {
+            "unixTime": 1234567,
+            "mmr": 4567
+        },
+        {
+            "unixTime": 1234567,
+            "mmr": 4567
+        },
+        {
+            "unixTime": 1234567,
+            "mmr": 4567
+        },
+        {
+            "unixTime": 1234567,
+            "mmr": 4567
+        },
+        {
+            "unixTime": 1234567,
+            "mmr": 4567
+        },
+        {
+            "unixTime": 1234567,
+            "mmr": 4567
+        },
+        {
+            "unixTime": 1234567,
+            "mmr": 4567
+        },
+        {
+            "unixTime": 1234567,
+            "mmr": 4567
+        }
+    ]
+}

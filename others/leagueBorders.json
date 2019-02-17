@@ -1,0 +1,352 @@
+{
+  "1v1": {
+    "Bronze": {
+      "1": {
+        "min_mmr": 1848,
+        "max_mmr": 2080
+      },
+      "2": {
+        "min_mmr": 1617,
+        "max_mmr": 1848
+      },
+      "3": {
+        "min_mmr": 1385,
+        "max_mmr": 1617
+      }
+    },
+    "Silver": {
+      "1": {
+        "min_mmr": 2480,
+        "max_mmr": 2680
+      },
+      "2": {
+        "min_mmr": 2280,
+        "max_mmr": 2480
+      },
+      "3": {
+        "min_mmr": 2080,
+        "max_mmr": 2280
+      }
+    },
+    "Gold": {
+      "1": {
+        "min_mmr": 2920,
+        "max_mmr": 3040
+      },
+      "2": {
+        "min_mmr": 2800,
+        "max_mmr": 2920
+      },
+      "3": {
+        "min_mmr": 2680,
+        "max_mmr": 2800
+      }
+    },
+    "Platinum": {
+      "1": {
+        "min_mmr": 3333,
+        "max_mmr": 3480
+      },
+      "2": {
+        "min_mmr": 3187,
+        "max_mmr": 3333
+      },
+      "3": {
+        "min_mmr": 3040,
+        "max_mmr": 3187
+      }
+    },
+    "Diamond": {
+      "1": {
+        "min_mmr": 4173,
+        "max_mmr": 4520
+      },
+      "2": {
+        "min_mmr": 3827,
+        "max_mmr": 4173
+      },
+      "3": {
+        "min_mmr": 3480,
+        "max_mmr": 3827
+      }
+    },
+    "Master": {
+      "1": {
+        "min_mmr": 4983,
+        "max_mmr": 5215
+      },
+      "2": {
+        "min_mmr": 4752,
+        "max_mmr": 4983
+      },
+      "3": {
+        "min_mmr": 4520,
+        "max_mmr": 4752
+      }
+    },
+    "Grand Master": {
+      "3": {
+        "min_mmr": 5400,
+        "max_mmr": 6700
+      }
+    }
+  },
+  "2v2": {
+    "Bronze": {
+      "1": {
+        "min_mmr": 1929,
+        "max_mmr": 2120
+      },
+      "2": {
+        "min_mmr": 1738,
+        "max_mmr": 1929
+      },
+      "3": {
+        "min_mmr": 1547,
+        "max_mmr": 1738
+      }
+    },
+    "Silver": {
+      "1": {
+        "min_mmr": 2493,
+        "max_mmr": 2680
+      },
+      "2": {
+        "min_mmr": 2307,
+        "max_mmr": 2493
+      },
+      "3": {
+        "min_mmr": 2120,
+        "max_mmr": 2307
+      }
+    },
+    "Gold": {
+      "1": {
+        "min_mmr": 2893,
+        "max_mmr": 3000
+      },
+      "2": {
+        "min_mmr": 2787,
+        "max_mmr": 2893
+      },
+      "3": {
+        "min_mmr": 2680,
+        "max_mmr": 2787
+      }
+    },
+    "Platinum": {
+      "1": {
+        "min_mmr": 3267,
+        "max_mmr": 3400
+      },
+      "2": {
+        "min_mmr": 3133,
+        "max_mmr": 3267
+      },
+      "3": {
+        "min_mmr": 3000,
+        "max_mmr": 3133
+      }
+    },
+    "Diamond": {
+      "1": {
+        "min_mmr": 3907,
+        "max_mmr": 4160
+      },
+      "2": {
+        "min_mmr": 3653,
+        "max_mmr": 3907
+      },
+      "3": {
+        "min_mmr": 3400,
+        "max_mmr": 3653
+      }
+    },
+    "Master": {
+      "1": {
+        "min_mmr": 4542,
+        "max_mmr": 4733
+      },
+      "2": {
+        "min_mmr": 4351,
+        "max_mmr": 4542
+      },
+      "3": {
+        "min_mmr": 4160,
+        "max_mmr": 4351
+      }
+    }
+  },
+  "3v3": {
+    "Bronze": {
+      "1": {
+        "min_mmr": 2021,
+        "max_mmr": 2200
+      },
+      "2": {
+        "min_mmr": 1842,
+        "max_mmr": 2021
+      },
+      "3": {
+        "min_mmr": 1663,
+        "max_mmr": 1842
+      }
+    },
+    "Silver": {
+      "1": {
+        "min_mmr": 2520,
+        "max_mmr": 2680
+      },
+      "2": {
+        "min_mmr": 2360,
+        "max_mmr": 2520
+      },
+      "3": {
+        "min_mmr": 2200,
+        "max_mmr": 2360
+      }
+    },
+    "Gold": {
+      "1": {
+        "min_mmr": 2893,
+        "max_mmr": 3000
+      },
+      "2": {
+        "min_mmr": 2787,
+        "max_mmr": 2893
+      },
+      "3": {
+        "min_mmr": 2680,
+        "max_mmr": 2787
+      }
+    },
+    "Platinum": {
+      "1": {
+        "min_mmr": 3240,
+        "max_mmr": 3360
+      },
+      "2": {
+        "min_mmr": 3120,
+        "max_mmr": 3240
+      },
+      "3": {
+        "min_mmr": 3000,
+        "max_mmr": 3120
+      }
+    },
+    "Diamond": {
+      "1": {
+        "min_mmr": 3840,
+        "max_mmr": 4080
+      },
+      "2": {
+        "min_mmr": 3600,
+        "max_mmr": 3840
+      },
+      "3": {
+        "min_mmr": 3360,
+        "max_mmr": 3600
+      }
+    },
+    "Master": {
+      "1": {
+        "min_mmr": 4438,
+        "max_mmr": 4617
+      },
+      "2": {
+        "min_mmr": 4259,
+        "max_mmr": 4438
+      },
+      "3": {
+        "min_mmr": 4080,
+        "max_mmr": 4259
+      }
+    }
+  },
+  "4v4": {
+    "Bronze": {
+      "1": {
+        "min_mmr": 2102,
+        "max_mmr": 2280
+      },
+      "2": {
+        "min_mmr": 1924,
+        "max_mmr": 2102
+      },
+      "3": {
+        "min_mmr": 1745,
+        "max_mmr": 1924
+      }
+    },
+    "Silver": {
+      "1": {
+        "min_mmr": 2600,
+        "max_mmr": 2760
+      },
+      "2": {
+        "min_mmr": 2440,
+        "max_mmr": 2600
+      },
+      "3": {
+        "min_mmr": 2280,
+        "max_mmr": 2440
+      }
+    },
+    "Gold": {
+      "1": {
+        "min_mmr": 2973,
+        "max_mmr": 3080
+      },
+      "2": {
+        "min_mmr": 2867,
+        "max_mmr": 2973
+      },
+      "3": {
+        "min_mmr": 2760,
+        "max_mmr": 2867
+      }
+    },
+    "Platinum": {
+      "1": {
+        "min_mmr": 3320,
+        "max_mmr": 3440
+      },
+      "2": {
+        "min_mmr": 3200,
+        "max_mmr": 3320
+      },
+      "3": {
+        "min_mmr": 3080,
+        "max_mmr": 3200
+      }
+    },
+    "Diamond": {
+      "1": {
+        "min_mmr": 3893,
+        "max_mmr": 4120
+      },
+      "2": {
+        "min_mmr": 3667,
+        "max_mmr": 3893
+      },
+      "3": {
+        "min_mmr": 3440,
+        "max_mmr": 3667
+      }
+    },
+    "Master": {
+      "1": {
+        "min_mmr": 4476,
+        "max_mmr": 4655
+      },
+      "2": {
+        "min_mmr": 4298,
+        "max_mmr": 4476
+      },
+      "3": {
+        "min_mmr": 4120,
+        "max_mmr": 4298
+      }
+    }
+  }
+}
