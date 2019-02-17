@@ -76,23 +76,33 @@ exports.getCurrentMatchStat = function (gameModeName, myRaceName, playerNames) {
   return d.promise;
 }
 
-exports.addNewLog = function (mmrLog) {
+exports.addNewLog = function (mmrLog, options) {
   var d = Q.defer();
+  options = options || {};
 
-  console.log('Reading from ' + mmrLog.getLogFileName());
   var logPath = './logs/' + mmrLog.getLogFileName();
+  console.log('Reading from ' + logPath);
 
   // create init file if not exist
   createNewLogFileIfNotExist(logPath, mmrLog)
     .then(function () {
+      console.log("Reading log file finished");
+
       Util.getJSON(logPath)
         .then(function (data) {
+          if (options.removeLastMatchLog) {
+            var removedData = data['matchLogs'].pop();
+            console.log("REMOVED LAST MATCH LOG");
+            console.log(removedData);
+          }
+
           data['matchLogs'].push(mmrLog.createLogData());
           writeJsonFile(logPath, data)
             .then(function () {
               d.resolve(data);
             })
             .fail(function (e) {
+              console.log("Error: " + e);
               d.reject(e);
             });
         });
@@ -102,6 +112,10 @@ exports.addNewLog = function (mmrLog) {
 }
 
 exports.updateChart = function (logData, leagueBorder) {
+  // clear canvas before create new one
+  $('canvas#myChart').remove();
+  $('body').append('<canvas id="myChart"></canvas>');
+
   var $chart = $("#myChart");
   var convertRatingArrayToChartData = function (mmrArray) {
     var i = 0;
@@ -128,7 +142,7 @@ exports.updateChart = function (logData, leagueBorder) {
       var maxMMR = data['max_mmr'];
 
       if (mmrRangeMin < minMMR && minMMR < mmrRangeMax) {
-      // if (true) {
+        // if (true) {
         borders.push({
           isBorderLine: true,
           data: [
@@ -292,6 +306,34 @@ exports.updateLeagueBorders = function () {
             console.log("completed!");
           });
       });
+    });
+}
+
+exports.reUpdateChart = function () {
+  var gameModeName = global.TEMP_INFO.gameModeName;
+  var myRaceName = global.TEMP_INFO.myRaceName;
+  var playerNames = global.TEMP_INFO.playerNames;
+
+  Util.getCurrentMatchStat(gameModeName, myRaceName, playerNames)
+    .then(function (result) {
+      console.log(result);
+      var currentUnixTime = Math.floor((new Date().getTime()) / 1000);
+      playerNames = _.map(result['teamMembers'], function (member) {
+        return member['displayName'];
+      });
+
+      Util.addNewLog(
+        new MMRLog(currentUnixTime, gameModeName, result['mmr'], playerNames, myRaceName),
+        {
+          removeLastMatchLog: true,
+        })
+        .then(function (logData) {
+          console.log("update chart");
+          Util.getJSON(Const.OTHERS.LEAGUE_BORDER_FILE_PATH)
+            .then(function (borders) {
+              Util.updateChart(logData, borders);
+            });
+        });
     });
 }
 

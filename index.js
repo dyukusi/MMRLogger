@@ -10,6 +10,7 @@ global.MMRLog = require('./my_libs/MMRLog.js');
 global.fs = require('fs');
 
 $(function () {
+  disableCache();
   initChart();
   mainLoop();
 
@@ -31,7 +32,14 @@ function mainLoop() {
       if (gameState.isEndGame()) {
         console.log("END GAME!!!!!");
         setTimeout(function () {
-          Util.getCurrentMatchStat(gameState.getGameModeName(), gameState.getMyRaceName())
+          // save info just in case
+          global.TEMP_INFO = {
+            gameModeName: gameState.getGameModeName(),
+            myRaceName: gameState.getMyRaceName(),
+            playerNames: gameState.getPlayerNames(),
+          };
+
+          Util.getCurrentMatchStat(gameState.getGameModeName(), gameState.getMyRaceName(), gameState.getPlayerNames())
             .then(function (result) {
               var currentUnixTime = Math.floor((new Date().getTime()) / 1000);
               var playerNames = _.map(result['teamMembers'], function (member) {
@@ -47,7 +55,7 @@ function mainLoop() {
                     });
                 });
             });
-        }, 15000)
+        }, 20000)
       }
 
       setTimeout(function () {
@@ -59,6 +67,12 @@ function mainLoop() {
       console.log(e);
     });
 
+}
+
+function disableCache() {
+  $.ajaxSetup({
+    cache: false
+  });
 }
 
 function initChart() {

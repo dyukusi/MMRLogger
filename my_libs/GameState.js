@@ -43,6 +43,12 @@ module.exports = class GameState {
     return 'undefined mode';
   }
 
+  getPlayerNames() {
+    return _.map(this.gameJSON.players, function(data) {
+      return data.name;
+    });
+  }
+
   getMyPlayer() {
     var myIdx = _.findIndex(this.gameJSON.players, function(data) {
       return _.contains(['Dyukusi', 'FtwoAbuser', 'AntiProtoss', 'Pimba'], data.name);
