@@ -10,6 +10,9 @@ exports.getJSON = function (URL) {
 
 exports.getCurrentMatchStat = function (gameModeName, myRaceName, playerNames) {
   var d = Q.defer();
+
+  console.log("fetching match stat... " + gameModeName + " " + myRaceName + " " + playerNames.toString());
+
   var LADDER_SUMMARY_API_URL = sprintf(Const.BLIZ_API.URL_LADDER_SUMMARY, Const.TEMP.REGION_ID, Const.TEMP.BLIZ_PROFILE_ID, Const.BLIZ_API.ACCESS_TOKEN);
 
   Util.getJSON(LADDER_SUMMARY_API_URL)
@@ -80,8 +83,10 @@ exports.addNewLog = function (mmrLog, options) {
   var d = Q.defer();
   options = options || {};
 
-  var logPath = './logs/' + mmrLog.getLogFileName();
-  console.log('Reading from ' + logPath);
+  var logPath = './logs/' + mmrLog.getGameModeName() + '/' + mmrLog.getLogFileName();
+
+  console.log('adding new log');
+  console.log(mmrLog);
 
   // create init file if not exist
   createNewLogFileIfNotExist(logPath, mmrLog)
@@ -90,10 +95,21 @@ exports.addNewLog = function (mmrLog, options) {
 
       Util.getJSON(logPath)
         .then(function (data) {
+
           if (options.removeLastMatchLog) {
             var removedData = data['matchLogs'].pop();
             console.log("REMOVED LAST MATCH LOG");
             console.log(removedData);
+          }
+
+          if (options.pushRetryQueueIfInvalidData && !_.isEmpty(data['matchLogs'])) {
+            var lastMatchLog = data['matchLogs'].slice(-1)[0];
+            var lastMMR = lastMatchLog['mmr'];
+
+            if (mmrLog.getMMR() == lastMMR) {
+              d.reject('Fetched mmr: ' + mmrLog.getMMR() + ' Last match MMR: ' + lastMMR + '  Data is not updated yet.');
+              return;
+            }
           }
 
           data['matchLogs'].push(mmrLog.createLogData());
@@ -111,114 +127,209 @@ exports.addNewLog = function (mmrLog, options) {
   return d.promise;
 }
 
-exports.updateChart = function (logData, leagueBorder) {
+exports.updateChart = function (gameModeName) {
   // clear canvas before create new one
   $('canvas#myChart').remove();
   $('body').append('<canvas id="myChart"></canvas>');
 
   var $chart = $("#myChart");
-  var convertRatingArrayToChartData = function (mmrArray) {
-    var i = 0;
-    return _.map(mmrArray, function (mmr) {
-      return {
-        x: i++,
-        y: mmr,
-      };
-    })
+
+  var createChartDatasetsByLogData = function (logData) {
+    var mmrArray = _.map(logData['matchLogs'], function (d) {
+      return d.mmr;
+    });
+
+    var convertRatingArrayToChartData = function (mmrArray) {
+      var i = 0;
+      return _.map(mmrArray, function (mmr) {
+        return {
+          x: i++,
+          y: mmr,
+        };
+      })
+    };
+
+    var settingByRace = {
+      'terran': {
+        borderColor: 'red',
+        legend: 'Terran'
+      },
+      'zerg': {
+        borderColor: 'purple',
+        legend: 'Zerg'
+      },
+      'protoss': {
+        borderColor: 'yellow',
+        legend: 'Protoss'
+      },
+    };
+
+    var setting = settingByRace[logData['race']];
+
+    return {
+      data: convertRatingArrayToChartData(mmrArray),
+      borderColor: setting.borderColor,
+      fill: false,
+      backgroundColor: false,
+      pointRadius: 2,
+      // showLine: false,
+      // borderWidth: 1
+
+      minMMR: _.min(mmrArray),
+      maxMMR: _.max(mmrArray),
+
+      legend: setting.legend,
+    };
   };
 
-  var mmrArray = _.map(logData['matchLogs'], function (d) {
-    return d.mmr;
-  });
-  var mmrMappingArray = convertRatingArrayToChartData(mmrArray);
-  var mmrRangeMax = _.max(mmrArray) + 100;
-  var mmrRangeMin = _.min(mmrArray) - 100;
+  Q.allSettled([
+    Util.getLogDataByGameModeName(gameModeName),
+    Util.getJSON(Const.OTHERS.LEAGUE_BORDER_FILE_PATH)
+  ])
+    .then(function (results) {
+      var logDataArray = results[0].value;
+      var leagueBorders = results[1].value;
 
-  var targetLeagueBorders = leagueBorder[logData['gameModeName']];
-  var borders = [];
-  _.each(targetLeagueBorders, function (tierData, leagueName) {
-    _.each(tierData, function (data, tierNum) {
-      var minMMR = data['min_mmr'];
-      var maxMMR = data['max_mmr'];
+      if (_.isEmpty(logDataArray)) return;
 
-      if (mmrRangeMin < minMMR && minMMR < mmrRangeMax) {
-        // if (true) {
-        borders.push({
-          isBorderLine: true,
-          data: [
-            {x: 0, y: minMMR, displayName: (leagueName + ' Tier ' + tierNum),},
-            {x: mmrMappingArray.length - 1, y: minMMR},
-          ],
-          fill: false,
-          pointRadius: 0,
-          borderColor: 'black',
+      var mmrDatasets = _.map(logDataArray, function (logData) {
+        return createChartDatasetsByLogData(logData)
+      });
+
+      var mmrRangeMin = _.min(mmrDatasets, function (dataset) {
+        return dataset['minMMR'];
+      })['minMMR'];
+
+      var mmrRangeMax = _.max(mmrDatasets, function (dataset) {
+        return dataset['maxMMR'];
+      })['maxMMR'];
+
+      var maxGameNum = _.max(mmrDatasets, function (dataset) {
+        return dataset['data'].length;
+      })['data'].length;
+
+      var borders = [];
+      _.each(leagueBorders[gameModeName], function (tierData, leagueName) {
+        _.each(tierData, function (data, tierNum) {
+          var minMMR = data['min_mmr'];
+          var maxMMR = data['max_mmr'];
+
+          if (mmrRangeMin - 100 < minMMR && minMMR < mmrRangeMax + 100) {
+            borders.push({
+              isBorderLine: true,
+              data: [
+                {x: 0, y: minMMR, displayName: (leagueName + ' Tier ' + tierNum),},
+                {x: maxGameNum - 1, y: minMMR},
+              ],
+              fill: false,
+              pointRadius: 0,
+              borderColor: 'blue',
+            });
+          }
         });
-      }
-    });
-  });
+      });
 
-  var datasets = _.flatten([{
-    data: mmrMappingArray,
-    borderColor: 'red',
-    fill: false,
-    backgroundColor: false,
-    pointRadius: 2,
-    // showLine: false,
-    // borderWidth: 1
-  }, borders]);
+      var datasets = _.flatten([mmrDatasets, borders]);
 
-  var myChart = new ChartJS($chart, {
-    type: 'scatter',
-    responsive: true,
-    data: {
-      datasets: datasets,
-    },
-    options: {
-      title: {
-        display: true,
-        text: logData['gameModeName'] + ' ' + logData['playerNames'].join(' '),
-      },
+      console.log(datasets);
 
-      legend: {
-        display: true,
-      },
-      showLines: true,
-      elements: {
-        line: {
-          // tension: 0,
+      var myChart = new ChartJS($chart, {
+        type: 'scatter',
+        responsive: true,
+        data: {
+          datasets: datasets,
         },
-      },
-      legend: {
-        display: false,
-      },
-      scales: {
-        yAxes: [{
-          scaleLabel: {
+        options: {
+          title: {
             display: true,
-            labelString: 'MMR',
+            text: gameModeName,
           },
-          ticks: {
-            suggestedMax: mmrRangeMax,
-            suggestedMin: mmrRangeMin,
-          }
-        }],
-        xAxes: [{
-          scaleLabel: {
+
+          // legend: {
+          //   display: false,
+          // },
+
+          legend: {
             display: true,
-            labelString: 'Matches',
-          },
-          ticks: {
-            // stepSize: 1,
-          }
-        }],
-      },
-      tooltips: {
-        enabled: true,
-      }
-    }
-  });
+            // position: 'right',
+            labels: {
+              generateLabels: function (data) {
+                // 凡例の表示
+                var chartData = data.tooltip._data;
+                var legendArray = [];
+                _.each(chartData.datasets, function (dataset) {
+
+                  var legendText = dataset.legend;
+                  if (!legendText) return;
+
+                  const eachLengend = {
+                    // 表示されるラベル
+                    text: legendText,
+                    // 凡例ボックスの塗りつぶしスタイル
+                    fillStyle: dataset.borderColor,
+                    //  trueの場合、この項目は非表示のデータセットを表します。ラベルは取り消し線を伴ってレンダリングされます
+                    hidden: false,
+                    // ボックス枠用。次をご覧ください。https://developer.mozilla.org/en/docs/Web/API/CanvasRenderingContext2D/lineCap
+                    lineCap: "butt",
+                    // ボックス枠用。次をご覧ください。https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/setLineDash
+                    lineDash: [0],
+                    // ボックス枠用。次をご覧ください。https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/lineDashOffset
+                    lineDashOffset: 0,
+                    // ボックス枠用。次をご覧ください。https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/lineJoin
+                    lineJoin: "bevel",
+                    // 枠線の幅
+                    lineWidth: 0,
+                    // 凡例ボックスのストロークスタイル
+                    strokeStyle: "",
+                    // 凡例ボックスのポイントスタイル（usePointStyleがtrueの場合にのみ使用されます）
+                    pointStyle: ""
+                  };
+
+                  legendArray.push(eachLengend);
 
 
+                });
+
+                return legendArray;
+              }
+            },
+          },
+
+          showLines: true,
+          elements: {
+            line: {
+              // tension: 0,
+            },
+          },
+          scales: {
+            yAxes: [{
+              scaleLabel: {
+                display: true,
+                labelString: 'MMR',
+              },
+              ticks: {
+                suggestedMax: mmrRangeMax + 100,
+                // suggestedMin: mmrRangeMin - 100,
+              }
+            }],
+            xAxes: [{
+              scaleLabel: {
+                display: true,
+                labelString: 'Matches',
+              },
+              ticks: {
+                // stepSize: 1,
+              }
+            }],
+          },
+          tooltips: {
+            enabled: true,
+          }
+        }
+      });
+
+    });
+  
 // Define a plugin to provide data labels
   ChartJS.plugins.register({
     afterDatasetsDraw: function (chart) {
@@ -229,7 +340,7 @@ exports.updateChart = function (logData, leagueBorder) {
         if (!meta.hidden && dataset.isBorderLine) {
 
           // Draw the text in black, with the specified font
-          ctx.fillStyle = 'rgb(0, 0, 0)';
+          ctx.fillStyle = 'blue';
 
           var fontSize = 16;
           var fontStyle = 'normal';
@@ -329,10 +440,7 @@ exports.reUpdateChart = function () {
         })
         .then(function (logData) {
           console.log("update chart");
-          Util.getJSON(Const.OTHERS.LEAGUE_BORDER_FILE_PATH)
-            .then(function (borders) {
-              Util.updateChart(logData, borders);
-            });
+          Util.updateChart(gameModeName);
         });
     });
 }
@@ -351,12 +459,23 @@ function writeJsonFile(path, data) {
 function createNewLogFileIfNotExist(path, mmrLog) {
   var d = Q.defer();
 
+  console.log('checking log file existent... ' + path);
+
   if (!isExistFile(path)) {
+    console.log('not found log file. creating new one...');
+
     var initData = {
       gameModeName: mmrLog.getGameModeName(),
       playerNames: mmrLog.getPlayerNames(),
       matchLogs: [],
     };
+
+    if (mmrLog.getGameModeName() == '1v1') {
+      initData = _.extend({
+        race: mmrLog.getMyRaceName(),
+      }, initData);
+    }
+
     fs.writeFile(path, JSON.stringify(initData, undefined, 4), function (e) {
       if (e) {
         d.reject();
@@ -398,3 +517,41 @@ function isExistFile(path) {
   }
 }
 
+function getFileNames(path) {
+  var d = Q.defer();
+
+  fs.readdir(path, function (err, files) {
+    if (err) {
+      d.reject(err);
+      throw err;
+    }
+    var fileList = files.filter(function (file) {
+      return fs.statSync(path + file).isFile(); //絞り込み
+    })
+    d.resolve(fileList);
+  });
+
+  return d.promise;
+}
+
+exports.getLogDataByGameModeName = function (gameModeName) {
+  var d = Q.defer();
+
+  var basePath = './logs/' + gameModeName + '/';
+  getFileNames(basePath)
+    .then(function (fileNames) {
+      Q.allSettled(_.map(fileNames, function (fileName) {
+        return Util.getJSON(basePath + fileName);
+      }))
+        .then(function (results) {
+          var logDataArray = _.map(results, function (result) {
+            return result.value;
+          });
+
+          d.resolve(logDataArray);
+        });
+
+    });
+
+  return d.promise;
+}

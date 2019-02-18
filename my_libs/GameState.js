@@ -51,7 +51,7 @@ module.exports = class GameState {
 
   getMyPlayer() {
     var myIdx = _.findIndex(this.gameJSON.players, function(data) {
-      return _.contains(['Dyukusi', 'FtwoAbuser', 'AntiProtoss', 'Pimba'], data.name);
+      return _.contains(['Dyukusi', 'FtwoAbuser', 'AntiProtoss', 'Pimba', 'llllllllllll'], data.name);
     });
 
     if (myIdx < 0) return false;

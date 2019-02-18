@@ -15,6 +15,14 @@ module.exports = class MMRLog {
     return this.gameModeName;
   }
 
+  getMyRaceName() {
+    return this.myRaceName;
+  }
+
+  getMMR() {
+    return this.mmr;
+  }
+
   getLogFileName() {
     // 1v1
     if (this.gameModeName == '1v1') {
